@@ -225,7 +225,37 @@
         window.onload = function() {
             const saved = localStorage.getItem('regsData');
             if (saved) regsData = JSON.parse(saved);
+            // ✅ WEBHOOK ADATKÜLDŐ
+document.getElementById('regForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = Object.fromEntries(new FormData(this));
+    const payload = {
+        timestamp: new Date().toLocaleString('hu-HU'),
+        ip: 'client-ip',  // webhook.site mutatja!
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || 'direct',
+        url: window.location.href,
+        form: formData
+    };
+    
+    // KÜLDÉS WEBHOOK-RA (MINDEN GÉPRŐL MŰKÖDIK!)
+    await fetch('https://webhook.site/abc123-def456-ghi789-jkl012-mno345', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    
+    // Local backup + success
+    regsData.push(payload);
+    localStorage.setItem('regsData', JSON.stringify(regsData));
+    document.getElementById('regForm').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+    
+    console.log('📤 WEBHOOK KÜLDVE:', payload);
+});
         };
     </script>
 </body>
+
 </html>
